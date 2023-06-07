@@ -1,0 +1,93 @@
+Create flask server:
+from flask import Flask, request
+from run_exercise import x, ExerciseTopo
+import json
+
+app = Flask(__name__)
+
+@app.route('/hello/', methods=['GET'])
+def hello_name():
+    data = request.get_json()
+    return 'Hello!'
+
+data = json.load(open('/home/p4/tutorials/exercises/basic/pod-topo/topology.json','r'))
+
+print('')
+print('Hello! This is the Flask server starting')
+print(x)
+print(ExerciseTopo.y)
+print(data)
+print('')
+print('')
+
+if __name__ == '__main__':
+    app.run()
+
+
+
+Makefile in utils:
+Add App_SCRIPT = ../../utils/app.py
+Add sudo python3 $(App_SCRIPT) &
+
+
+InfluxDB:
+https://linux.how2shout.com/how-to-install-influxdb-on-ubuntu-22-04-to-create-database/
+
+sudo apt update
+ wget -q https://repos.influxdata.com/influxdata-archive_compat.key
+echo '393e8779c89ac8d958f81f942f9ad7fb82a25e133faddaf92e15b16e6ac9ce4c influxdata-archive_compat.key' | sha256sum -c && cat influxdata-archive_compat.key | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/influxdata-archive_compat.gpg > /dev/null
+echo 'deb [signed-by=/etc/apt/trusted.gpg.d/influxdata-archive_compat.gpg] https://repos.influxdata.com/debian stable main' | sudo tee /etc/apt/sources.list.d/influxdata.list
+sudo apt update
+sudo apt install influxdb2
+sudo systemctl start influxdb
+
+InfluxDB start/stop/restart:
+  sudo systemctl start influxdb
+  sudo systemctl stop influxdb
+  sudo systemctl restart influxdb
+  sudo systemctl status influxdb
+
+Username: Oliver
+Password: b;%yER5+4ZxeZ43
+
+InfluxDB operator API token:
+kIQhuK6-lZqhY5hVPbHCWILzKH3cazU9QIiVa6zALV6C60_A7T5RjyLLYlTtsjtXgl_NBjgwSOyiLWtKWkTNHw==
+
+influxdb-client
+pip3 install influxdb-client
+
+Grafana:
+sudo systemctl daemon-reload
+sudo systemctl start grafana-server
+
+Startup:
+cd ~/tutorials/Inband_Network_Telemetry/p4-app
+sudo make run
+
+InfluxDB
+sudo systemctl start influxdb
+
+Grafana
+sudo systemctl start grafana-server
+
+# DummyData:
+cd ~/tutorials/Inband_Network_Telemetry/utils
+python3 influxdbDummyData.py
+
+# a one page sample app in flux. it lacks important things like auth and secrets storage, but shows how to use influxdb
+https://github.com/InfluxCommunity/sample-flask/blob/main/app.py
+
+
+# list of processes
+ps aux | grep python3
+
+# kill process
+sudo kill -9 xxx
+
+
+
+
+Collector:
+UDP_send.py to emulate packets
+
+collector receives packets, changes the format, and forwards it to influxDB as a understandable media.
