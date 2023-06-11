@@ -53,6 +53,10 @@ InfluxDB start/stop/restart:
   sudo systemctl restart influxdb
   sudo systemctl status influxdb
 
+
+Username:s174122
+Password:"?BXn5Xhgu+".r_
+
 Username: Oliver
 Password: b;%yER5+4ZxeZ43
 
