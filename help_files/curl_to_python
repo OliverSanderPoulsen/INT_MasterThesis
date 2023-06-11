@@ -1,0 +1,39 @@
+curl or python?
+https://stackoverflow.com/questions/26000336/execute-curl-command-within-a-python-script
+
+Convert curl to python:
+https://github.com/curlconverter/curlconverter
+
+Create new bucket using curl:
+https://docs.influxdata.com/influxdb/v2.7/api-guide/api_intro/
+
+curl --request POST \
+  "http://localhost:8086/api/v2/buckets" \
+  --header "Authorization: Token KuOnbHG3IK_4tmmWCJ3SCqeEMgneuiIuuUffHXoq7rBKfviHvVKMmsqYSsJuqcBXrwlr5h2HIDEzR18nySSxKg==" \
+  --header "Content-type: application/json" \
+  --data '{
+    "orgID": "'"546ce3652d6c4557"'",
+    "name": "iot-center",
+    "retentionRules": [
+    {
+
+      "everySeconds": 2592000,
+      "type": "expire"
+
+    }
+    ]
+  }'
+
+Write to bucket using curl:
+https://docs.influxdata.com/influxdb/v2.7/write-data/developer-tools/api/
+
+curl --request POST \
+"http://localhost:8086/api/v2/write?org=DTU&bucket=940f53ede08d559b&precision=ns" \
+  --header "Authorization: Token KuOnbHG3IK_4tmmWCJ3SCqeEMgneuiIuuUffHXoq7rBKfviHvVKMmsqYSsJuqcBXrwlr5h2HIDEzR18nySSxKg==" \
+  --header "Content-Type: text/plain; charset=utf-8" \
+  --header "Accept: application/json"
+
+
+  curl https://localhost:8086/api/v2/tasks/?limit=-1&type=basic \
+    --header 'Content-Type: application/json' \
+    --header 'Authorization: Token KuOnbHG3IK_4tmmWCJ3SCqeEMgneuiIuuUffHXoq7rBKfviHvVKMmsqYSsJuqcBXrwlr5h2HIDEzR18nySSxKg=='
