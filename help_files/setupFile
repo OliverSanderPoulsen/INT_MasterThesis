@@ -106,3 +106,9 @@ Collector:
 UDP_send.py to emulate packets
 
 collector receives packets, changes the format, and forwards it to influxDB as a understandable media.
+
+
+curl --request GET \
+--url "https://api.github.com/octocat" \
+--header "Authorization: Bearer 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" \
+--header "X-GitHub-Api-Version: 2022-11-28"

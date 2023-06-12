@@ -27,7 +27,7 @@ write_api = client.write_api(write_options=SYNCHRONOUS)
 # Generate and send the dummy time series data
 for i in range(num_data_points):
     # Generate a random value
-    value = 2*i
+    value = random.uniform(0, 100)
 
     # Create a data point with a specified measurement
     data_point = Point("dummy_measurement")

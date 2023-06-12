@@ -18,9 +18,15 @@
 #     print(f"Data: {data()}")  # Assuming data is in string format, modify decoding accordingly
 #     # Process the received data as per your requirements
 
-
+# Receive data
 import socket
 import struct
+
+# Forward to InfluxDB
+from influxdb_client import InfluxDBClient, Point
+from influxdb_client.client.write_api import SYNCHRONOUS
+import random
+from datetime import datetime, timedelta
 
 UDP_IP = "0.0.0.0"  # Listen on all available network interfaces
 UDP_PORT = 5353  # Replace with the desired port number
@@ -30,6 +36,19 @@ sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
 # Bind the socket to the IP address and port
 sock.bind((UDP_IP, UDP_PORT))
+
+
+# InfluxDB connection settings
+url = "http://localhost:8086"  # Replace with the InfluxDB URL
+token = "KuOnbHG3IK_4tmmWCJ3SCqeEMgneuiIuuUffHXoq7rBKfviHvVKMmsqYSsJuqcBXrwlr5h2HIDEzR18nySSxKg=="  # Replace with your InfluxDB token
+org = "546ce3652d6c4557"  # Replace with your InfluxDB organization
+bucket = "d1d7af80ebdedbe8"  # Replace with your InfluxDB bucket
+
+# Create an InfluxDB client
+client = InfluxDBClient(url=url, token=token)
+
+# Create a write API instance
+write_api = client.write_api(write_options=SYNCHRONOUS)
 
 while True:
     # Receive data and address from the socket
@@ -56,7 +75,10 @@ while True:
     print("Hop-by-Hop:", hop_by_hop)
     print("TTL:", ttl)
 
+    # Define time stamp for current data point
+    timestamp = datetime.utcnow()
 
+    
 
 # Close the socket (this part is never reached in the infinite loop)
 sock.close()
