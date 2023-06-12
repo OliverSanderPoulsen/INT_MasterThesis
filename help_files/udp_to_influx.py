@@ -13,7 +13,7 @@ bucket = "d1d7af80ebdedbe8"  # Replace with your InfluxDB bucket
 client = InfluxDBClient(url=url, token=token)
 
 # Define the number of data points to generate
-num_data_points = 5000
+num_data_points = 100
 
 # Define the starting time for the data series
 start_time = datetime.utcnow()
@@ -27,19 +27,17 @@ write_api = client.write_api(write_options=SYNCHRONOUS)
 # Generate and send the dummy time series data
 for i in range(num_data_points):
     # Generate a random value
-    value = 500.0
+    value = random.uniform(0, 1)
 
     # Create a data point with a specified measurement
     data_point = Point("dummy_measurement")
 
     # Add fields and tags to the data point
     data_point.field("value", value)
-    data_point.field("value1", value*3.0)
-    data_point.field("value2", value*2.0)
     data_point.tag("source", "dummy")
 
     # Add the timestamp to the data point
-    timestamp = start_time + i * interval + interval*800
+    timestamp = start_time + i * interval
     data_point.time(timestamp)
 
     # Write the data point to the InfluxDB bucket
