@@ -1,31 +1,10 @@
-# import socket
-#
-# UDP_IP = "0.0.0.0"  # Listen on all available network interfaces
-# UDP_PORT = 5353  # Choose a suitable port number
-#
-# # Create a UDP socket
-# sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-#
-# # Bind the socket to the IP address and port
-# sock.bind((UDP_IP, UDP_PORT))
-#
-# print(f"UDP collector listening on {UDP_IP}:{UDP_PORT}")
-#
-# # Receive and process incoming packets
-# while True:
-#     data, addr = sock.recvfrom(1024)  # Buffer size is 1024 bytes, adjust as needed
-#     print(f"Received packet from {addr[0]}:{addr[1]}")
-#     print(f"Data: {data()}")  # Assuming data is in string format, modify decoding accordingly
-#     # Process the received data as per your requirements
-
 # Receive data
 import socket
 import struct
-
+import time
 # Forward to InfluxDB
 from influxdb_client import InfluxDBClient, Point
 from influxdb_client.client.write_api import SYNCHRONOUS
-import random
 from datetime import datetime, timedelta
 
 UDP_IP = "0.0.0.0"  # Listen on all available network interfaces
@@ -49,6 +28,22 @@ client = InfluxDBClient(url=url, token=token)
 
 # Create a write API instance
 write_api = client.write_api(write_options=SYNCHRONOUS)
+
+
+def send_data(queue_size, delay, bit_size, packet_efficiency_ratio):
+    point = Point("Meta_data").tag("device_id", "12345")  # Add any additional tags as needed
+
+    # Add fields to the data point
+    point = point.field("queue_size", queue_size)
+    point = point.field("delay", delay)
+    point = point.field("bit_size", bit_size)
+    point = point.field("packet_efficiency_ratio", packet_efficiency_ratio)
+
+    # Add timestamp to the data point
+    point = point.time(datetime.utcnow())
+
+    # Write the data point to the InfluxDB bucket
+    write_api.write(bucket=bucket, org=org, record=point)
 
 while True:
     # Receive data and address from the socket
@@ -75,10 +70,18 @@ while True:
     print("Hop-by-Hop:", hop_by_hop)
     print("TTL:", ttl)
 
-    # Define time stamp for current data point
-    timestamp = datetime.utcnow()
+    queue_size = 10
+    delay = 1000
+    bit_size = 1024
+    packet_efficiency_ratio = 0.68
 
-    
+    send_data(queue_size, delay, bit_size, packet_efficiency_ratio)
+
+    # Might not be necessary
+    time.sleep(1)
+
+# Close the InfluxDB client (this part is never reached in the infinite loop)
+client.close()
 
 # Close the socket (this part is never reached in the infinite loop)
 sock.close()
