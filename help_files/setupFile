@@ -112,3 +112,8 @@ curl --request GET \
 --url "https://api.github.com/octocat" \
 --header "Authorization: Bearer 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" \
 --header "X-GitHub-Api-Version: 2022-11-28"
+
+
+
+Remove InfluxDB inputs:
+influx delete --org DTU --token KuOnbHG3IK_4tmmWCJ3SCqeEMgneuiIuuUffHXoq7rBKfviHvVKMmsqYSsJuqcBXrwlr5h2HIDEzR18nySSxKg==  --bucket Testing --start 2023-06-11T12:00:00Z --stop 2023-06-13T12:00:00Z
