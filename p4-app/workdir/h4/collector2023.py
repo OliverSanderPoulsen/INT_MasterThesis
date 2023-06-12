@@ -7,6 +7,9 @@ from influxdb_client import InfluxDBClient, Point
 from influxdb_client.client.write_api import SYNCHRONOUS
 from datetime import datetime, timedelta
 
+# Dummy data
+import random
+
 UDP_IP = "0.0.0.0"  # Listen on all available network interfaces
 UDP_PORT = 5353  # Replace with the desired port number
 
@@ -21,7 +24,7 @@ sock.bind((UDP_IP, UDP_PORT))
 url = "http://localhost:8086"  # Replace with the InfluxDB URL
 token = "KuOnbHG3IK_4tmmWCJ3SCqeEMgneuiIuuUffHXoq7rBKfviHvVKMmsqYSsJuqcBXrwlr5h2HIDEzR18nySSxKg=="  # Replace with your InfluxDB token
 org = "546ce3652d6c4557"  # Replace with your InfluxDB organization
-bucket = "d1d7af80ebdedbe8"  # Replace with your InfluxDB bucket
+bucket = "b2cebaef043b65f4"  # Replace with your InfluxDB bucket
 
 # Create an InfluxDB client
 client = InfluxDBClient(url=url, token=token)
@@ -70,10 +73,10 @@ while True:
     print("Hop-by-Hop:", hop_by_hop)
     print("TTL:", ttl)
 
-    queue_size = 10
-    delay = 1000
-    bit_size = 1024
-    packet_efficiency_ratio = 0.68
+    queue_size = random.uniform(0.0, 10.0)
+    delay = random.uniform(0.0, 100.0)
+    bit_size = random.uniform(0.0, 1000.0)
+    packet_efficiency_ratio = random.uniform(0.0, 1.0)
 
     send_data(queue_size, delay, bit_size, packet_efficiency_ratio)
 
