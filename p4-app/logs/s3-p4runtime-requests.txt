@@ -1,10 +1,10 @@
 
-[2023-05-30 03:43:15.396] /p4.v1.P4Runtime/SetForwardingPipelineConfig
+[2023-06-12 10:32:53.715] /p4.v1.P4Runtime/SetForwardingPipelineConfig
 ---
 Message too long (310326 bytes)! Skipping log...
 ---
 
-[2023-05-30 03:43:15.415] /p4.v1.P4Runtime/Write
+[2023-06-12 10:32:53.731] /p4.v1.P4Runtime/Write
 ---
 device_id: 2
 election_id {
@@ -45,7 +45,7 @@ updates {
 }
 ---
 
-[2023-05-30 03:43:15.416] /p4.v1.P4Runtime/Write
+[2023-06-12 10:32:53.732] /p4.v1.P4Runtime/Write
 ---
 device_id: 2
 election_id {
@@ -74,7 +74,7 @@ updates {
 }
 ---
 
-[2023-05-30 03:43:15.417] /p4.v1.P4Runtime/Write
+[2023-06-12 10:32:53.733] /p4.v1.P4Runtime/Write
 ---
 device_id: 2
 election_id {
@@ -121,7 +121,7 @@ updates {
 }
 ---
 
-[2023-05-30 03:43:15.417] /p4.v1.P4Runtime/Write
+[2023-06-12 10:32:53.734] /p4.v1.P4Runtime/Write
 ---
 device_id: 2
 election_id {
@@ -148,7 +148,7 @@ updates {
 }
 ---
 
-[2023-05-30 03:43:15.418] /p4.v1.P4Runtime/Write
+[2023-06-12 10:32:53.734] /p4.v1.P4Runtime/Write
 ---
 device_id: 2
 election_id {
@@ -175,7 +175,7 @@ updates {
 }
 ---
 
-[2023-05-30 03:43:15.419] /p4.v1.P4Runtime/Write
+[2023-06-12 10:32:53.735] /p4.v1.P4Runtime/Write
 ---
 device_id: 2
 election_id {
@@ -212,7 +212,7 @@ updates {
 }
 ---
 
-[2023-05-30 03:43:15.419] /p4.v1.P4Runtime/Write
+[2023-06-12 10:32:53.736] /p4.v1.P4Runtime/Write
 ---
 device_id: 2
 election_id {
@@ -248,7 +248,7 @@ updates {
 }
 ---
 
-[2023-05-30 03:43:15.420] /p4.v1.P4Runtime/Write
+[2023-06-12 10:32:53.737] /p4.v1.P4Runtime/Write
 ---
 device_id: 2
 election_id {
@@ -285,7 +285,7 @@ updates {
 }
 ---
 
-[2023-05-30 03:43:15.421] /p4.v1.P4Runtime/Write
+[2023-06-12 10:32:53.737] /p4.v1.P4Runtime/Write
 ---
 device_id: 2
 election_id {
@@ -322,7 +322,7 @@ updates {
 }
 ---
 
-[2023-05-30 03:43:15.421] /p4.v1.P4Runtime/Write
+[2023-06-12 10:32:53.738] /p4.v1.P4Runtime/Write
 ---
 device_id: 2
 election_id {
@@ -359,7 +359,7 @@ updates {
 }
 ---
 
-[2023-05-30 03:43:15.422] /p4.v1.P4Runtime/Write
+[2023-06-12 10:32:53.741] /p4.v1.P4Runtime/Write
 ---
 device_id: 2
 election_id {

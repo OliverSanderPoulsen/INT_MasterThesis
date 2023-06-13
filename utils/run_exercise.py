@@ -65,11 +65,16 @@ def configureP4Switch(**switch_args):
 
         return ConfiguredP4Switch
 
+# Remove after testing!
 x = 'test123'
+#
 class ExerciseTopo(Topo):
     """ The mininet topology class for the P4 tutorial exercises.
     """
+
+    # Remove after testing!
     y = x
+    #
     def __init__(self, hosts, switches, links, log_dir, bmv2_exe, pcap_dir, **opts):
         Topo.__init__(self, **opts)
         host_links = []
