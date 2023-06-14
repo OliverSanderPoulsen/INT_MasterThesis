@@ -1,3 +1,6 @@
+BMV2_SWITCH_EXE = simple_switch_grpc
+TOPO = pod-topo/topology.json
+
 BUILD_DIR = build
 PCAP_DIR = pcaps
 LOG_DIR = logs
@@ -33,9 +36,16 @@ endif
 
 all: run
 
-run: build
-	sudo python3 $(App_SCRIPT) &
+venv: build
+	. ../utils/venv/bin/activate
+
+run: venv
+	python3 $(App_SCRIPT) &
 	sudo python3 $(RUN_SCRIPT) -t $(TOPO) $(run_args)
+
+kill:
+	@echo "Killing app.py process..."
+	@./../utils/pid_kill.sh
 
 stop:
 	sudo mn -c
