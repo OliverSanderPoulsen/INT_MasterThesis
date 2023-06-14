@@ -51,5 +51,5 @@ def modify_flows():
     return 'Success when pressing '+str(button_id)+'!'+str(text_field)# result
 
 if __name__ == '__main__':
-    print('Server running on '+address+':'+str(portnumber))
+    #print('Server running on '+address+':'+str(portnumber))
     app.run(host=address, port=portnumber)
