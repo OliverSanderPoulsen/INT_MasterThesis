@@ -36,14 +36,16 @@ endif
 
 all: run
 
+# not necessary
 venv: build
 	. ../utils/venv/bin/activate
 
-run: venv
+run: build
 	python3 $(App_SCRIPT) &
 	sudo python3 $(RUN_SCRIPT) -t $(TOPO) $(run_args)
 
-kill:
+kill: clean
+	@echo ""
 	@echo "Killing app.py process..."
 	@./../utils/pid_kill.sh
 
