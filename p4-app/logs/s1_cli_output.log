@@ -1,9 +1,0 @@
-Obtaining JSON from switch...
-Done
-Control utility for runtime P4 table manipulation
-RuntimeCmd: RuntimeCmd: Adding entry to exact match table IngressImpl.int_ingress.tb_set_first_hop
-match key:           EXACT-00:05
-action:              IngressImpl.int_ingress.int_set_first_hop
-runtime data:        
-Entry has been added with handle 1
-RuntimeCmd: 
