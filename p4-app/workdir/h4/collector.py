@@ -17,6 +17,7 @@ from scapy.layers.inet6 import IPv6
 from scapy.layers.l2 import Ether
 #from int_lib.telemetryreport import TelemetryReport
 
+###
 class INT_switch_id(Packet):
     name = "Switch ID"
 
@@ -24,6 +25,7 @@ class INT_switch_id(Packet):
         IntField('switch_id', 0),
     ]
 
+###
 class INT_level1_port_ids(Packet):
     name = "Level 1 port IDs"
 
@@ -32,6 +34,7 @@ class INT_level1_port_ids(Packet):
         ShortField('l1_egress_port_id', 0)
     ]
 
+###
 class INT_hop_latency(Packet):
     name = "Hop Latency"
 
@@ -39,6 +42,7 @@ class INT_hop_latency(Packet):
         IntField('hop_latency', 0),
     ]
 
+###
 class INT_q_occupancy(Packet):
     name = "Queue Occupancy"
 
@@ -47,6 +51,8 @@ class INT_q_occupancy(Packet):
         BitField('q_occupancy', 0, 24),
     ]
 
+
+###
 class INT_ingress_tstamp(Packet):
     name = "Ingress Timestamp"
 
@@ -54,6 +60,7 @@ class INT_ingress_tstamp(Packet):
         IntField('ingress_global_timestamp', 0),
     ]
 
+###
 class INT_egress_tstamp(Packet):
     name = "Egress Timestamp"
 
@@ -61,6 +68,7 @@ class INT_egress_tstamp(Packet):
         IntField('egress_global_timestamp', 0),
     ]
 
+###
 class INT_level2_port_ids(Packet):
     name = "Level 2 Port Ids"
 
@@ -69,6 +77,7 @@ class INT_level2_port_ids(Packet):
         ShortField('l2_egress_port_id', 0)
     ]
 
+###
 class INT_egress_port_tx_util(Packet):
     name = "Egress Port TX util"
 
@@ -76,6 +85,7 @@ class INT_egress_port_tx_util(Packet):
         IntField('egress_port_tx_util', 0),
     ]
 
+###
 class INT_shim(Packet):
     oName = "Telemetry Report Header"
 
@@ -87,6 +97,7 @@ class INT_shim(Packet):
         BitField('rsvd2', 0, 2)
     ]
 
+###
 class INT_meta(Packet):
     name = "INT Metadata Header"
 
@@ -107,6 +118,7 @@ class INT_meta(Packet):
         ShortField('rsvd3', 0),
     ]
 
+###
 class TelemetryReport(Packet):
     name = "INT telemetry report"
 
@@ -238,6 +250,7 @@ def extract_metadata_stack(b, total_data_len, hop_m_len, instruction_mask_0003, 
 
     return info
 
+###
 def get_if():
     ifs=get_if_list()
     iface=None
@@ -246,7 +259,7 @@ def get_if():
             iface=i
             break;
     if not iface:
-        print "Cannot find h4-eth0 interface"
+        print ("Cannot find h4-eth0 interface")
         exit(1)
     return iface
 
@@ -463,6 +476,8 @@ def main():
     iface = 'root-eth0'
     print "sniffing on %s" % iface
     sys.stdout.flush()
+
+###
     sniff(
         filter="udp and port 12345",
         iface = iface,

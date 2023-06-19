@@ -2,7 +2,6 @@
 from flask import Flask, render_template, request
 import requests
 import json
-from run_exercise import x, ExerciseTopo
 
 app = Flask(__name__)
 
