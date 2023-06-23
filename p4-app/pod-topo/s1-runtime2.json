@@ -1,0 +1,15 @@
+{
+  "target": "bmv2",
+  "p4info": "build/switch-int.p4.p4info.txt",
+  "bmv2_json": "build/switch-int.json",
+  "table_entries": [
+    {
+      "table": "IngressImpl.table0_control.table0",
+      "match": {
+        "hdr.ipv4.dstAddr": ["9.9.9.9", 4294967295]
+      },
+      "action_name": "IngressImpl.table0_control.set_egress_port",
+      "action_params": {}
+    }
+  ]
+}
