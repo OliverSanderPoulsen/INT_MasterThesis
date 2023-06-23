@@ -36,13 +36,10 @@ endif
 
 all: run
 
-# not necessary
-venv: build
-	. ../utils/venv/bin/activate
 
 run: build
-	python3 $(App_SCRIPT) &
-	sudo python3 $(RUN_SCRIPT) -t $(TOPO) $(run_args)
+	sudo python3 $(RUN_SCRIPT) -t $(TOPO) $(run_args) #&
+	#python3 $(App_SCRIPT)
 
 kill: clean
 	@echo ""
