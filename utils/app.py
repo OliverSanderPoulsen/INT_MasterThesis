@@ -28,7 +28,7 @@ log_dir = '/home/p4/tutorials/INT_MasterThesis/p4-app/logs'
 pcap_dir='/home/p4/tutorials/INT_MasterThesis/p4-app/pcaps'
 quiet=False
 switch_json='build/switch-int.json'
-topo='pod-topo/topology.json'
+#topo='pod-topo/topology.json'
 
 # grpc ports
 s1_grpc_port = P4RuntimeSwitch.next_grpc_port
@@ -36,7 +36,7 @@ s2_grpc_port = s1_grpc_port + 1
 s3_grpc_port = s2_grpc_port + 1
 
 class Rules():
-    sw_conf_file = '/home/p4/tutorials/INT_MasterThesis/p4-app/pod-topo/s1-runtime2.json'
+    sw_conf_file = '/home/p4/tutorials/INT_MasterThesis/p4-app/pod-topo/s1-runtime.json'
     sw_conf = json.load(open((sw_conf_file)))
 
     workdir = '/home/p4/tutorials/INT_MasterThesis/p4-app'
@@ -56,14 +56,14 @@ class Rules():
 
     bmv2_json_fpath = os.path.join(workdir, sw_conf['bmv2_json'])
 
+    #print(bmv2_json_fpath)
+
     s1.SetForwardingPipelineConfig(p4info=p4info_helper.p4info, bmv2_json_file_path=bmv2_json_fpath)
     print('Installed P4 program using SetForwardingPipelineConfig on s1')
     print('------------------')
     print('')
-    #print(sw_conf['table_entries'])
-    #print('//')
-    for entry in sw_conf['table_entries']:
-        simple_controller.insertTableEntry(s1, entry, p4info_helper)
+    
+    controller_functions.clearAllRules(p4info_helper, s1)
 
 
 # Home page route
