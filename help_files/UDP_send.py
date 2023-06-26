@@ -1,11 +1,15 @@
 import socket
 import struct
 
-UDP_IP = "127.1.2.3"  # Replace with the desired IP address
-UDP_PORT = 5353  # Replace with the desired port number
+# IP address of target (Collector)
+UDP_IP = "127.1.2.3"
+# UDP Port of target (Collector)
+UDP_PORT = 5353
 
-# Create a UDP socket
+# Create a UDP socket for internet communication
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+message = b'\x54\x68\x69\x73\x20\x69\x73\x20\x61\x20\x74\x65\x73\x74\x2e'
 
 header = 'xxx'
 ingress_port = 252
@@ -25,8 +29,16 @@ packet_data = struct.pack("!3sHHIH{}sB".format(len(hop_by_hop)),
                           hop_by_hop.encode(),
                           ttl)
 
+
 # Send the packet to the specified IP and port
-sock.sendto(packet_data, (UDP_IP, UDP_PORT))
+for x in range(10):
+    byte_val = x.to_bytes(10, 'big')
+    print(byte_val)
+    sock.sendto(byte_val, (UDP_IP, UDP_PORT))
+
+    # Print message as string
+    int_val = int.from_bytes(byte_val, "big")
+    print(int_val)
 
 print("Header:", header)
 print("Ingress Port:", ingress_port)

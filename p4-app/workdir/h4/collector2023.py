@@ -27,10 +27,10 @@ org = "546ce3652d6c4557"  # Replace with your InfluxDB organization
 bucket = "b2cebaef043b65f4"  # Replace with your InfluxDB bucket
 
 # Create an InfluxDB client
-client = InfluxDBClient(url=url, token=token)
+#client = InfluxDBClient(url=url, token=token)
 
 # Create a write API instance
-write_api = client.write_api(write_options=SYNCHRONOUS)
+#write_api = client.write_api(write_options=SYNCHRONOUS)
 
 
 def send_data(queue_size, delay, bit_size, packet_efficiency_ratio):
@@ -46,45 +46,47 @@ def send_data(queue_size, delay, bit_size, packet_efficiency_ratio):
     point = point.time(datetime.utcnow())
 
     # Write the data point to the InfluxDB bucket
-    write_api.write(bucket=bucket, org=org, record=point)
+    #write_api.write(bucket=bucket, org=org, record=point)
 
 while True:
     # Receive data and address from the socket
     data, addr = sock.recvfrom(1024)  # Adjust the buffer size as needed
 
+    print(data.decode('utf-8'))
+
     # Unpack the received data as a struct
-    unpacked_data = struct.unpack("!3sHHIH7sB", data)
+    #unpacked_data = struct.unpack("!3sHHIH7sB", data)
 
     # Process the unpacked data
-    header = unpacked_data[0].decode()
-    ingress_port = unpacked_data[1]
-    egress_port = unpacked_data[2]
-    timestamp = unpacked_data[3]
-    queue_occupancy = unpacked_data[4]
-    hop_by_hop = unpacked_data[5].decode()
-    ttl = unpacked_data[6]
+    #header = unpacked_data[0].decode()
+    #ingress_port = unpacked_data[1]
+    #egress_port = unpacked_data[2]
+    #timestamp = unpacked_data[3]
+    #queue_occupancy = unpacked_data[4]
+    #hop_by_hop = unpacked_data[5].decode()
+    #ttl = unpacked_data[6]
 
     # Print or process the unpacked data as needed
-    print("Header:", header)
-    print("Ingress Port:", ingress_port)
-    print("Egress Port:", egress_port)
-    print("Timestamp:", timestamp)
-    print("Queue Occupancy:", queue_occupancy)
-    print("Hop-by-Hop:", hop_by_hop)
-    print("TTL:", ttl)
+    #print("Header:", header)
+    #print("Ingress Port:", ingress_port)
+    #print("Egress Port:", egress_port)
+    # print("Timestamp:", timestamp)
+    # print("Queue Occupancy:", queue_occupancy)
+    # print("Hop-by-Hop:", hop_by_hop)
+    # print("TTL:", ttl)
 
-    queue_size = random.uniform(0.0, 10.0)
-    delay = random.uniform(0.0, 100.0)
-    bit_size = random.uniform(0.0, 1000.0)
-    packet_efficiency_ratio = random.uniform(0.0, 1.0)
+    # queue_size = random.uniform(0.0, 10.0)
+    # delay = random.uniform(0.0, 100.0)
+    # bit_size = random.uniform(0.0, 1000.0)
+    # packet_efficiency_ratio = random.uniform(0.0, 1.0)
 
-    send_data(queue_size, delay, bit_size, packet_efficiency_ratio)
+    #send_data(queue_size, delay, bit_size, packet_efficiency_ratio)
 
     # Might not be necessary
-    time.sleep(1)
+    #time.sleep(1)
 
 # Close the InfluxDB client (this part is never reached in the infinite loop)
-client.close()
+#client.close()
 
 # Close the socket (this part is never reached in the infinite loop)
 sock.close()

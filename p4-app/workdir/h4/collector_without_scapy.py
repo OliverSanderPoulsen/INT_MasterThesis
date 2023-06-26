@@ -25,11 +25,14 @@ class TelemetryReport:
         self.seq_no = struct.unpack("!I", raw_payload[8:12])[0]
         self.ingress_tstamp = struct.unpack("!I", raw_payload[12:16])[0]
 
+# not used
 def ip2int(addr):
     return struct.unpack("!I", socket.inet_aton(addr))[0]
 
+# not used
 def int2ip(addr):
     return socket.inet_ntoa(struct.pack("!I", addr))
+
 
 def extract_ins_00_03(instruction, b):
     if instruction == 0:
