@@ -52,7 +52,11 @@ while True:
     # Receive data and address from the socket
     data, addr = sock.recvfrom(1024)  # Adjust the buffer size as needed
 
-    print(data.decode('utf-8'))
+    # Print message as string
+    int_val = int.from_bytes(data, "big")
+    print(int_val)
+
+    #print(data.decode('utf-8'))
 
     # Unpack the received data as a struct
     #unpacked_data = struct.unpack("!3sHHIH7sB", data)
