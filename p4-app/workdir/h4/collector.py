@@ -263,89 +263,99 @@ def get_if():
         exit(1)
     return iface
 
-def get_flow_uuid(conn, info):
 
-    mon_id = ""
+# Depricated
+def depricated1():
+    # def get_flow_uuid(conn, info):
+    #
+    #     mon_id = ""
+    #
+    #     cursor = conn.cursor()
+    #
+    #     get_uuid = ("SELECT mon_id "
+    #                 "FROM flows "
+    #                 "WHERE ip_src=%s AND ip_dst=%s AND ip_proto=%s AND port_src=%s AND port_dst=%s")
+    #
+    #     check_values = (info["ip_src"], info["ip_dst"], info["ip_proto"], int(info["port_src"]), int(info["port_dst"]))
+    #
+    #     cursor.execute(get_uuid, check_values)
+    #
+    #     row = cursor.fetchone()
+    #     if row is not None:
+    #         mon_id = row[0]
+    #         #print("ID was recognised: "+mon_id)
+    #     else:
+    #         mon_id = str(uuid.uuid4())
+    #         #print("Using a new ID: "+mon_id)
+    #         #print("For these values: %s", check_values)
+    #         insert_new_flow_mon(conn, info, mon_id)
+    #
+    #     cursor.close()
+    #     return mon_id
+    return
 
-    cursor = conn.cursor()
+# Depricated
+def depricated2():
+# def insert_new_flow_mon(conn, info, mon_id):
+#
+#     cursor = conn.cursor()
+#
+#     insert_q = (
+#           "INSERT INTO flows (mon_id, ip_src, ip_dst, ip_proto, port_src, port_dst, instruction_mask_0003, instruction_mask_0407) "
+#           "VALUES (%s, %s, %s, %s, %s, %s, %s, %s)")
+#
+#     check_values = (mon_id, info["ip_src"], info["ip_dst"], info["ip_proto"], \
+#                     info["port_src"], info["port_dst"], info["instruction_mask_0003"], info["instruction_mask_0407"] )
+#
+#     """print("Inserting new flow info: %s, %s, %s, %s, %s, %s, %s ", \
+#             (mon_id, info["ip_src"], info["ip_dst"], info["port_src"], \
+#             info["port_dst"], info["instruction_mask_0003"], info["instruction_mask_0407"]))"""
+#
+#     cursor.execute(insert_q, check_values)
+#     conn.commit()
+#
+#     cursor.close()
+    return
 
-    get_uuid = ("SELECT mon_id "
-                "FROM flows "
-                "WHERE ip_src=%s AND ip_dst=%s AND ip_proto=%s AND port_src=%s AND port_dst=%s")
-
-    check_values = (info["ip_src"], info["ip_dst"], info["ip_proto"], int(info["port_src"]), int(info["port_dst"]))
-
-    cursor.execute(get_uuid, check_values)
-
-    row = cursor.fetchone()
-    if row is not None:
-        mon_id = row[0]
-        #print("ID was recognised: "+mon_id)
-    else:
-        mon_id = str(uuid.uuid4())
-        #print("Using a new ID: "+mon_id)
-        #print("For these values: %s", check_values)
-        insert_new_flow_mon(conn, info, mon_id)
-
-    cursor.close()
-    return mon_id
-
-def insert_new_flow_mon(conn, info, mon_id):
-
-    cursor = conn.cursor()
-
-    insert_q = (
-          "INSERT INTO flows (mon_id, ip_src, ip_dst, ip_proto, port_src, port_dst, instruction_mask_0003, instruction_mask_0407) "
-          "VALUES (%s, %s, %s, %s, %s, %s, %s, %s)")
-
-    check_values = (mon_id, info["ip_src"], info["ip_dst"], info["ip_proto"], \
-                    info["port_src"], info["port_dst"], info["instruction_mask_0003"], info["instruction_mask_0407"] )
-
-    """print("Inserting new flow info: %s, %s, %s, %s, %s, %s, %s ", \
-            (mon_id, info["ip_src"], info["ip_dst"], info["port_src"], \
-            info["port_dst"], info["instruction_mask_0003"], info["instruction_mask_0407"]))"""
-
-    cursor.execute(insert_q, check_values)
-    conn.commit()
-
-    cursor.close()
-
-def insert_data_to_db(conn, info):
-
-    cursor = conn.cursor()
-
-    for k, v in info["data"].iteritems():
-        # Here we iterate over each op and their data
-        #k = hop number (switch or node)
-        #v = all instructions and their data
-        fields = ""
-        data = []
-        data.extend((info["mon_id"], info["rec_time"]))
-        #Here inside each switch we iterate over
-        #i = mask data storing
-        #j = data itself (swithc_id, latency ...)
-
-        if not fields:
-            fields+=", "
-        fields+=", ".join([key for key,val in v.items()])
-        data.extend([val for key,val in v.items()])
-
-        data_values = tuple(data)
-
-        cols = (", %s"*(len(data)-2))
-
-        insert_q = ("INSERT INTO demo_data (mon_id, inserted_at"+fields+") "
-              "VALUES (%s, %s" + cols + ")")
-
-        #print("Query: %s", insert_q)
-        #print("Fields to be inserted: %s", fields)
-        #print("Data to be inserted: %s", data_values)
-
-
-        cursor.execute(insert_q, data_values)
-        conn.commit()
-
-    cursor.close()
+# Depricated
+def depricated3():
+# def insert_data_to_db(conn, info):
+#
+#     cursor = conn.cursor()
+#
+#     for k, v in info["data"].iteritems():
+#         # Here we iterate over each op and their data
+#         #k = hop number (switch or node)
+#         #v = all instructions and their data
+#         fields = ""
+#         data = []
+#         data.extend((info["mon_id"], info["rec_time"]))
+#         #Here inside each switch we iterate over
+#         #i = mask data storing
+#         #j = data itself (swithc_id, latency ...)
+#
+#         if not fields:
+#             fields+=", "
+#         fields+=", ".join([key for key,val in v.items()])
+#         data.extend([val for key,val in v.items()])
+#
+#         data_values = tuple(data)
+#
+#         cols = (", %s"*(len(data)-2))
+#
+#         insert_q = ("INSERT INTO demo_data (mon_id, inserted_at"+fields+") "
+#               "VALUES (%s, %s" + cols + ")")
+#
+#         #print("Query: %s", insert_q)
+#         #print("Fields to be inserted: %s", fields)
+#         #print("Data to be inserted: %s", data_values)
+#
+#
+#         cursor.execute(insert_q, data_values)
+#         conn.commit()
+#
+#     cursor.close()
+    return
 
 def handle_pkt(packet, conn, flows):
 
@@ -457,9 +467,12 @@ def handle_pkt(packet, conn, flows):
                            int_meta.instruction_mask_0407,\
                            info)
     #print(info)
-    info["mon_id"] = get_flow_uuid(conn, info)
 
-    insert_data_to_db(conn, info)
+    # Depricated
+    #info["mon_id"] = get_flow_uuid(conn, info)
+
+    # Depricated
+    #insert_data_to_db(conn, info)
 
     sys.stdout.flush()
 
