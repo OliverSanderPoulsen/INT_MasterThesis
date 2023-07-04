@@ -1,14 +1,5 @@
 import socket
 import struct
-import netifaces
-
-# Get a list of network interfaces
-interfaces = netifaces.interfaces()
-
-# Print the interface names
-for interface in interfaces:
-    print(interface)
-
 
 # IP address of target (Collector)
 UDP_IP = "127.1.2.3"
