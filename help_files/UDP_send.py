@@ -1,5 +1,14 @@
 import socket
 import struct
+import netifaces
+
+# Get a list of network interfaces
+interfaces = netifaces.interfaces()
+
+# Print the interface names
+for interface in interfaces:
+    print(interface)
+
 
 # IP address of target (Collector)
 UDP_IP = "127.1.2.3"
@@ -7,7 +16,7 @@ UDP_IP = "127.1.2.3"
 UDP_PORT = 5353
 
 # Create a UDP socket for internet communication
-sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+#sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
 message = b''
 
