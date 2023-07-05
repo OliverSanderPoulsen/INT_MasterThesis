@@ -202,10 +202,9 @@ while True:
     # int_data_size includes tel report, int shim, int meta header, int meta data
     int_size = outer_payload - inner_payload
 
-    int_meta = packet_data[INT_META_DATA_OFFSET:INT_META_DATA_OFFSET+int_size+500]
-    print('-------------------------------------')
-    print(int_size)
-    print(int_meta)
+    int_meta = packet_data[INT_META_DATA_OFFSET:INT_META_DATA_OFFSET+int_size]
+
+    number_of_int_meta = INT_payload/4
 
     # the entire int meta space
     int_meta_size = int_size - TELEMETRY_REPORT_LENGTH - INT_SHIM_LENGTH - INT_META_LENGTH
@@ -276,8 +275,8 @@ while True:
     print('------------')
     print('')
     print('')
-
-
+    #print('outer ip_len: ', outer_ip_len)
+    #print('inner ip_len: ', inner_ip_len)
 
 
 
