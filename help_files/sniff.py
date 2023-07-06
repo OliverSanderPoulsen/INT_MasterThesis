@@ -1,12 +1,15 @@
 import socket
 import struct
 import time
-
+import os
+import sys
 # Create a raw socket
-raw_socket = socket.socket(socket.AF_PACKET, socket.SOCK_RAW, socket.ntohs(3))
 
-#Bind to the eth0 interface
-interface = 'eth0'
+raw_socket = socket.socket(socket.AF_PACKET, socket.SOCK_RAW, socket.ntohs(3))
+interface = 's3-eth2'
+
+raw_socket.bind((interface ,0))
+
 raw_socket.setsockopt(socket.SOL_SOCKET, socket.SO_BINDTODEVICE, bytes(interface, 'utf-8'))
 
 # arbitrary number to signal a following INT header
@@ -55,7 +58,6 @@ def L4_VARIABLE_LEN(L4_proto):
 while True:
     # Receive a packet - MTU of Ethernet is 1500, hence the packet_data size limit.
     packet_data, addr = raw_socket.recvfrom(1500)
-
     # Outer IPv4 header
     outer_ip_header = packet_data[OUTER_IP_HEADER_OFFSET:OUTER_IP_HEADER_OFFSET+IP_HEADER_LENGTH]
 
@@ -92,6 +94,7 @@ while True:
     #     # Go to next packet
     #     continue
 #------------------------------------------
+    # This is redundant as the interface filter works
     # As other traffic than just the mininet traffic is captured, a temp filter
     # checks of influxDB packets and ignores them
 
@@ -101,9 +104,9 @@ while True:
 
 
     # if InfluxDB is the sender / receiver ignore the packets
-    if outer_L4_src == 8086 or outer_L4_dst == 8086:
-        print('ignore')
-        continue
+    #if outer_L4_src == 8086 or outer_L4_dst == 8086:
+        #print('ignore')
+    #    continue
 #------------------------------------------
 
     # Calculate the telemetry report offset based on the L4 protocol
@@ -156,58 +159,67 @@ while True:
     inner_L4_header = packet_data[INNER_L4_HEADER_OFFSET:INNER_L4_HEADER_OFFSET+INNER_L4_HEADER_LENGTH]
 
     OG_payload_size = inner_ip_len - IP_HEADER_LENGTH - INNER_L4_HEADER_LENGTH
-    print('inner ip len:', inner_ip_len)
-    print('payload:', OG_payload_size)
+    #print('inner ip len:', inner_ip_len)
+    #print('payload:', OG_payload_size)
 
     OG_payload_AND_INT_size = outer_ip_len - IP_HEADER_LENGTH - OUTER_L4_HEADER_LENGTH - TELEMETRY_REPORT_LENGTH - ETHERNET_HEADER_LENGTH - IP_HEADER_LENGTH - INNER_L4_HEADER_LENGTH
 
-    print('outer payload size', OG_payload_AND_INT_size)
+    #print('outer payload size', OG_payload_AND_INT_size)
 
     # INT SHIM
     INT_SHIM_OFFSET = INNER_L4_HEADER_OFFSET + L4_VARIABLE_LEN(inner_L4_PROTO)
-    print(INT_SHIM_OFFSET)
+    #print(INT_SHIM_OFFSET)
     int_shim = packet_data[INT_SHIM_OFFSET:INT_SHIM_OFFSET+INT_SHIM_LENGTH]
 
     #INT META HEADER
     INT_META_OFFSET = INT_SHIM_OFFSET + INT_SHIM_LENGTH
     int_meta_header =  packet_data[INT_META_OFFSET: INT_META_OFFSET+INT_META_LENGTH]
-    print(INT_META_OFFSET)
+    #print(INT_META_OFFSET)
 
     INT_META_DATA_OFFSET = INT_META_OFFSET+INT_META_LENGTH
-    print(INT_META_DATA_OFFSET)
+    #print(INT_META_DATA_OFFSET)
 
     # INT meta header variables
     # done with chatgpt
-    int_ver = (struct.unpack('!B', int_meta_header[0:1])[0] >> 4)
-    int_rep = (struct.unpack('!B', int_meta_header[0:1])[0] >> 2) & 0b11
-    int_c = (struct.unpack('!B', int_meta_header[0:1])[0] >> 1) & 0b1
-    int_e = struct.unpack('!B', int_meta_header[0:1])[0] & 0b1
-    int_m = (struct.unpack('!B', int_meta_header[1:2])[0] >> 7) & 0b1
-    int_reserved = (struct.unpack('!H', int_meta_header[1:3])[0] >> 6) & 0b1111111111
-    int_hop_ml = (struct.unpack('!B', int_meta_header[3:4])[0] >> 3) & 0b00011111
-    int_remaining_hop_cnt = struct.unpack('!B', int_meta_header[4:5])[0]
-    int_instruction_mask_0003 = (struct.unpack('!B', int_meta_header[5:6])[0] >> 4) & 0b00001111
-    int_instruction_mask_0407 = struct.unpack('!B', int_meta_header[5:6])[0] & 0b00001111
-    int_instruction_mask_0811 = (struct.unpack('!B', int_meta_header[6:7])[0] >> 4) & 0b00001111
-    int_instruction_mask_1215 = struct.unpack('!B', int_meta_header[6:7])[0] & 0b00001111
-    #int_reserved2 = struct.unpack('!H', int_meta_header[7:9])[0]
+    Ver = int_meta_header[0] >> 4
+    Rep = (int_meta_header[0] >> 2) & 0b11
+    c = (int_meta_header[0] >> 1) & 0b1
+    e = int_meta_header[0] & 0b1
+    m = int_meta_header[1] >> 7
+    rsvd2 = (int_meta_header[2] >> 5) & 0b111
+    hop_metadata_len = int_meta_header[2] & 0b11111
+    remaining_hop_cnt = int_meta_header[3]
+    instruction_mask_0003 = int_meta_header[4] >> 4
+    instruction_mask_0407 = int_meta_header[4] & 0b1111
+    instruction_mask_0811 = int_meta_header[5] >> 4
+    instruction_mask_1215 = int_meta_header[5] & 0b1111
+    rsvd = int_meta_header[6:7]
+    sys.stdout.flush()
+    print(INT_META_DATA_OFFSET)
+    print(len(packet_data))
+    sys.stdout.flush()
+    print(packet_data)
+    meta_data1 = packet_data[-8:]
+    meta_data2 = packet_data[-16:-8]
 
-    # int_data_size includes tel report, int shim, int meta header, int meta data
-    #int_size = outer_payload - inner_payload
+    #print('start:',INT_META_DATA_OFFSET)
+    #print('end',INT_META_DATA_OFFSET+16)
+    #print(packet_data)
+    sys.stdout.flush()
+    print(meta_data1)
+    sys.stdout.flush()
+    print(meta_data2)
+    sys.stdout.flush()
+    for i in range(0,hop_metadata_len):
+        #print(i)
+        offset1 = i*7
+        offset2 = (i + 1)*7
+        meta_data = packet_data[(INT_META_DATA_OFFSET+offset1):(INT_META_DATA_OFFSET+offset2)]
+        #print(meta_data)
 
-    #int_meta = packet_data[INT_META_DATA_OFFSET:INT_META_DATA_OFFSET+int_size]
 
-    #number_of_int_meta = INT_payload/4
-
-    # the entire int meta space
-    #int_meta_size = int_size - TELEMETRY_REPORT_LENGTH - INT_SHIM_LENGTH - INT_META_LENGTH
-
-
-
-    # divide int_meta_size with INT_META_LENGTH to find number of int meta payloads.
-    #number_of_int_meta =
-
-
+    #---------------------------------------------------------------
+    # cmd output
 
     print('Packet:')
     print('')
@@ -248,27 +260,27 @@ while True:
     #print('int shim type:', int_shim_type)
     print('')
 
+    #print(os.listdir('/sys/class/net/'))
     print('--INT Meta Header--')
-    print("Ver:", int_ver)
-    print("Rep:", int_rep)
-    print("C:", int_c)
-    print("E:", int_e)
-    print("M:", int_m)
-    print("Reserved:", int_reserved)
-    print("Hop ML:", int_hop_ml)
-    print("RemainingHopCnt:", int_remaining_hop_cnt)
-    print("Instruction bits:")
-    print('0003: ', int_instruction_mask_0003)
-    print('0407: ', int_instruction_mask_0407)
-    print('0811: ', int_instruction_mask_0811)
-    print('1215: ', int_instruction_mask_1215)
+    print(f"Ver: {Ver}")
+    print(f"Rep: {Rep}")
+    print(f"c: {c}")
+    print(f"e: {e}")
+    print(f"m: {m}")
+    #print(f"rsvd2: {rsvd2}")
+    print(f"hop_metadata_len: {hop_metadata_len}")
+    print(f"remaining_hop_cnt: {remaining_hop_cnt}")
+    print(f"instruction_mask_0003: {instruction_mask_0003}")
+    print(f"instruction_mask_0407: {instruction_mask_0407}")
+    print(f"instruction_mask_0811: {instruction_mask_0811}")
+    print(f"instruction_mask_1215: {instruction_mask_1215}")
+    #print(f"rsvd: {rsvd}")
     #print("Reserved:", int_reserved2)
     print('------------')
     print('')
     print('')
     #print('outer ip_len: ', outer_ip_len)
     #print('inner ip_len: ', inner_ip_len)
-
 
 
 
