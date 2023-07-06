@@ -43,7 +43,7 @@ OUTER_L4_HEADER_OFFSET = OUTER_IP_HEADER_OFFSET + IP_HEADER_LENGTH
 
 def L4_VARIABLE_LEN(L4_proto):
     if  L4_proto == ICMP_PROTO:
-        L4_LENGTH = TCP_HEADER_LENGTH
+        L4_LENGTH = ICMP_HEADER_LENGTH
     elif  L4_proto == TCP_PROTO:
         L4_LENGTH = TCP_HEADER_LENGTH
     elif L4_proto == UDP_PROTO:
@@ -56,7 +56,8 @@ while True:
     # Receive a packet - MTU of Ethernet is 1500, hence the packet_data size limit.
     packet_data, addr = raw_socket.recvfrom(1500)
 
-    outer_ip_header = packet_data[OUTER_IP_HEADER_OFFSET:OUTER_L4_HEADER_OFFSET]
+    # Outer IPv4 header
+    outer_ip_header = packet_data[OUTER_IP_HEADER_OFFSET:OUTER_IP_HEADER_OFFSET+IP_HEADER_LENGTH]
 
     # size of inner IP packet
     outer_ip_len = struct.unpack('!H', outer_ip_header[2:4])[0]
@@ -64,31 +65,46 @@ while True:
     # The L4 protocol is defined by the protocol field in the IPv4 header
     outer_L4_PROTO = outer_ip_header[9]
 
+    # Initiate L4 header list
+    outer_L4_header = []
+    OUTER_L4_HEADER_LENGTH = 0
     # L4_header_length can be either 20 bytes (tcp) or 8 bytes (udp)
     if outer_L4_PROTO == 6:
-        continue
-        outer_L4_header = packet_data[OUTER_L4_HEADER_OFFSET:OUTER_L4_HEADER_OFFSET+TCP_HEADER_LENGTH]
-        # Entire Outer payload size
-        outer_payload = outer_ip_len - IP_HEADER_LENGTH-TCP_HEADER_LENGTH - TELEMETRY_REPORT_LENGTH
+        OUTER_L4_HEADER_LENGTH = TCP_HEADER_LENGTH
 
     elif outer_L4_PROTO == 17:
-        outer_L4_header = packet_data[OUTER_L4_HEADER_OFFSET:OUTER_L4_HEADER_OFFSET+UDP_HEADER_LENGTH]
+        OUTER_L4_HEADER_LENGTH = UDP_HEADER_LENGTH
 
-
-        # Entire Outer payload size
-        outer_payload = outer_ip_len - IP_HEADER_LENGTH - UDP_HEADER_LENGTH
     else:
         #print('not tcp or udp')
         # Go to next packet
         continue
 
+    outer_L4_header = packet_data[OUTER_L4_HEADER_OFFSET:OUTER_L4_HEADER_OFFSET+OUTER_L4_HEADER_LENGTH]
+
+#------------------------------------------
     # Only a INT 2.0 mechanism
+
     # outer_L4_dst signals INT content, if the port number is equal to INT_tbd
     # if outer_L4_dst != INT_tbd:
     #     #print("Destination Port:", outer_L4_dst)
     #
     #     # Go to next packet
     #     continue
+#------------------------------------------
+    # As other traffic than just the mininet traffic is captured, a temp filter
+    # checks of influxDB packets and ignores them
+
+    # src and dst port of outer L4
+    outer_L4_src = struct.unpack('!H', outer_L4_header[0:2])[0]
+    outer_L4_dst = struct.unpack('!H', outer_L4_header[2:4])[0]
+
+
+    # if InfluxDB is the sender / receiver ignore the packets
+    if outer_L4_src == 8086 or outer_L4_dst == 8086:
+        print('ignore')
+        continue
+#------------------------------------------
 
     # Calculate the telemetry report offset based on the L4 protocol
     telemetry_report_offset = OUTER_L4_HEADER_OFFSET + L4_VARIABLE_LEN(outer_L4_PROTO)
@@ -96,8 +112,8 @@ while True:
     # In case the report needs to be shown
     telemetry_report = packet_data[telemetry_report_offset:telemetry_report_offset+TELEMETRY_REPORT_LENGTH]
 
+    # Inner L2
     INNER_ETHERNET_OFFSET = telemetry_report_offset+TELEMETRY_REPORT_LENGTH
-
 
     # Inner L3
     INNER_IP_HEADER_OFFSET = INNER_ETHERNET_OFFSET+ETHERNET_HEADER_LENGTH
@@ -118,70 +134,47 @@ while True:
     inner_L4_PROTO = inner_ip_header[9]
     INNER_L4_HEADER_OFFSET = INNER_IP_HEADER_OFFSET + IP_HEADER_LENGTH
 
+    inner_L4_header = []
+    INNER_L4_HEADER_LENGTH = 0
     # L4_header_length can be either 20 bytes (tcp) or 8 bytes (icmp / udp)
     if inner_L4_PROTO == 6:
         # TCP header
-        inner_L4_header = packet_data[INNER_L4_HEADER_OFFSET:INNER_L4_HEADER_OFFSET+TCP_HEADER_LENGTH]
-        # original payload size
-        inner_payload = inner_ip_len-IP_HEADER_LENGTH-TCP_HEADER_LENGTH
-
-        # INT payload
-        INT_payload =   outer_payload-\
-                        TELEMETRY_REPORT_LENGTH-\
-                        ETHERNET_HEADER_LENGTH-\
-                        IP_HEADER_LENGTH-\
-                        TCP_HEADER_LENGTH -\
-                        inner_payload
-
+        INNER_L4_HEADER_LENGTH = TCP_HEADER_LENGTH
     elif inner_L4_PROTO == 17:
         #UDP header
-        inner_L4_header = packet_data[INNER_L4_HEADER_OFFSET:INNER_L4_HEADER_OFFSET+UDP_HEADER_LENGTH]
-        # original payload size
-        inner_payload = inner_ip_len-IP_HEADER_LENGTH-UDP_HEADER_LENGTH
-
-        # INT payload
-        INT_payload =   outer_payload-\
-                        TELEMETRY_REPORT_LENGTH-\
-                        ETHERNET_HEADER_LENGTH-\
-                        IP_HEADER_LENGTH-\
-                        UDP_HEADER_LENGTH -\
-                        inner_payload
+        INNER_L4_HEADER_LENGTH = UDP_HEADER_LENGTH
 
     elif inner_L4_PROTO == 1:
         #ICMP header
-        inner_L4_header = packet_data[INNER_L4_HEADER_OFFSET:INNER_L4_HEADER_OFFSET+ICMP_HEADER_LENGTH]
-        # original payload size
-        inner_payload = inner_ip_len-IP_HEADER_LENGTH-ICMP_HEADER_LENGTH
-
-        # INT payload
-        INT_payload =   outer_payload-\
-                        TELEMETRY_REPORT_LENGTH-\
-                        ETHERNET_HEADER_LENGTH-\
-                        IP_HEADER_LENGTH-\
-                        ICMP_HEADER_LENGTH -\
-                        inner_payload
+        INNER_L4_HEADER_LENGTH = ICMP_HEADER_LENGTH
 
     else:
         #print('not tcp, icmp or udp')
         # Go to next packet
         continue
 
-    # Check if mininet pings shows up
-    #print('destination_port: ', outer_L4_dst)
-    #print('telemetry report: ', telemetry_report)
-    #print('-----------')
+    inner_L4_header = packet_data[INNER_L4_HEADER_OFFSET:INNER_L4_HEADER_OFFSET+INNER_L4_HEADER_LENGTH]
+
+    OG_payload_size = inner_ip_len - IP_HEADER_LENGTH - INNER_L4_HEADER_LENGTH
+    print('inner ip len:', inner_ip_len)
+    print('payload:', OG_payload_size)
+
+    OG_payload_AND_INT_size = outer_ip_len - IP_HEADER_LENGTH - OUTER_L4_HEADER_LENGTH - TELEMETRY_REPORT_LENGTH - ETHERNET_HEADER_LENGTH - IP_HEADER_LENGTH - INNER_L4_HEADER_LENGTH
+
+    print('outer payload size', OG_payload_AND_INT_size)
 
     # INT SHIM
-    #print(inner_L4_PROTO)
     INT_SHIM_OFFSET = INNER_L4_HEADER_OFFSET + L4_VARIABLE_LEN(inner_L4_PROTO)
+    print(INT_SHIM_OFFSET)
     int_shim = packet_data[INT_SHIM_OFFSET:INT_SHIM_OFFSET+INT_SHIM_LENGTH]
 
     #INT META HEADER
     INT_META_OFFSET = INT_SHIM_OFFSET + INT_SHIM_LENGTH
     int_meta_header =  packet_data[INT_META_OFFSET: INT_META_OFFSET+INT_META_LENGTH]
-
+    print(INT_META_OFFSET)
 
     INT_META_DATA_OFFSET = INT_META_OFFSET+INT_META_LENGTH
+    print(INT_META_DATA_OFFSET)
 
     # INT meta header variables
     # done with chatgpt
@@ -200,14 +193,14 @@ while True:
     #int_reserved2 = struct.unpack('!H', int_meta_header[7:9])[0]
 
     # int_data_size includes tel report, int shim, int meta header, int meta data
-    int_size = outer_payload - inner_payload
+    #int_size = outer_payload - inner_payload
 
-    int_meta = packet_data[INT_META_DATA_OFFSET:INT_META_DATA_OFFSET+int_size]
+    #int_meta = packet_data[INT_META_DATA_OFFSET:INT_META_DATA_OFFSET+int_size]
 
-    number_of_int_meta = INT_payload/4
+    #number_of_int_meta = INT_payload/4
 
     # the entire int meta space
-    int_meta_size = int_size - TELEMETRY_REPORT_LENGTH - INT_SHIM_LENGTH - INT_META_LENGTH
+    #int_meta_size = int_size - TELEMETRY_REPORT_LENGTH - INT_SHIM_LENGTH - INT_META_LENGTH
 
 
 
@@ -224,8 +217,6 @@ while True:
     print('IP4 src address: ', outer_ip_header_src)
     print('IP4 dst address: ', outer_ip_header_dst)
 
-    outer_L4_src = struct.unpack('!H', outer_L4_header[0:2])[0]
-    outer_L4_dst = struct.unpack('!H', outer_L4_header[2:4])[0]
     print("L4 src port:", outer_L4_src)
     print("L4 dst port:", outer_L4_dst)
     print('')
