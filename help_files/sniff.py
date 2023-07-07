@@ -3,8 +3,13 @@ import struct
 import time
 import os
 import sys
-# Create a raw socket
 
+# Forward to InfluxDB
+from influxdb_client import InfluxDBClient, Point
+from influxdb_client.client.write_api import SYNCHRONOUS
+from datetime import datetime, timedelta
+
+# Create a raw socket
 raw_socket = socket.socket(socket.AF_PACKET, socket.SOCK_RAW, socket.ntohs(3))
 interface = 's3-eth2'
 
@@ -12,10 +17,40 @@ raw_socket.bind((interface ,0))
 
 raw_socket.setsockopt(socket.SOL_SOCKET, socket.SO_BINDTODEVICE, bytes(interface, 'utf-8'))
 
-# arbitrary number to signal a following INT header
+# InfluxDB connection settings
+url = "http://localhost:8086"  # Replace with the InfluxDB URL
+token = "Uu4TtIEUnAKNgMTDgkWMxf0Dw5SN3mGxPYXcccVe0Wnh8b2eDJ4-DlbvXTNg8-3hMz9ht5Chi2rOptUxAiezEA=="  # Replace with your InfluxDB token
+org = "364cd2e0588af933"  # Replace with your InfluxDB organization
+bucket = "61cd1053dee65ad1"  # Replace with your InfluxDB bucket
 
-# This is used in the outer L4 source port
+# Create an InfluxDB client
+client = InfluxDBClient(url=url, token=token, org=org)
+
+# Create a write API instance
+write_api = client.write_api(write_options=SYNCHRONOUS)
+
+def send_data(sw_id, hop_latency):
+    point = Point("INT_Meta_data").tag("device_id", sw_id)  # Add any additional tags as needed
+
+    # Add fields to the data point
+    point = point.field("hop_latency", hop_latency)
+
+    # Add timestamp to the data point
+    point = point.time(datetime.utcnow())
+
+    # Write the data point to the InfluxDB bucket
+    write_api.write(bucket=bucket, org=org, record=point)
+
+def close():
+    # Close the InfluxDB client (this part is never reached in the infinite loop)
+    client.close()
+
+    # Close the socket (this part is never reached in the infinite loop)
+    sock.close()
+    return
+
 # Only in telemetry report 2.0
+# This is used in the outer L4 source port
 #INT_tbd = 12345
 
 # IP protocol type indicators
@@ -194,175 +229,77 @@ while True:
     instruction_mask_0811 = int_meta_header[5] >> 4
     instruction_mask_1215 = int_meta_header[5] & 0b1111
     rsvd = int_meta_header[6:7]
-    sys.stdout.flush()
-    print(INT_META_DATA_OFFSET)
-    print(len(packet_data))
-    sys.stdout.flush()
-    print(packet_data)
-    meta_data1 = packet_data[-8:]
-    meta_data2 = packet_data[-16:-8]
-
-    #print('start:',INT_META_DATA_OFFSET)
-    #print('end',INT_META_DATA_OFFSET+16)
-    #print(packet_data)
-    sys.stdout.flush()
-    print(meta_data1)
-    sys.stdout.flush()
-    print(meta_data2)
-    sys.stdout.flush()
-    for i in range(0,hop_metadata_len):
-        #print(i)
-        offset1 = i*7
-        offset2 = (i + 1)*7
-        meta_data = packet_data[(INT_META_DATA_OFFSET+offset1):(INT_META_DATA_OFFSET+offset2)]
-        #print(meta_data)
-
 
     #---------------------------------------------------------------
     # cmd output
+    # print('Packet:')
+    # print('')
+    # print("--Outer--")
+    # outer_ip_header_src = socket.inet_ntoa(outer_ip_header[12:16])
+    # outer_ip_header_dst = socket.inet_ntoa(outer_ip_header[16:20])
+    # print('IP4 src address: ', outer_ip_header_src)
+    # print('IP4 dst address: ', outer_ip_header_dst)
+    #
+    # print("L4 src port:", outer_L4_src)
+    # print("L4 dst port:", outer_L4_dst)
+    # print('')
+    #
+    # print("--Telemetry Report--")
+    # telemetry_report_sw_id = struct.unpack('!i', telemetry_report[4:8])[0]
+    # telemetry_report_sq_number = struct.unpack('!i', telemetry_report[8:12])[0]
+    # telemetry_report_ing_time = struct.unpack('!i', telemetry_report[12:16])[0]
+    # print("sw id: ", telemetry_report_sw_id)
+    # print("sequence number: ", telemetry_report_sq_number)
+    # print("Ingress timestamp: ", telemetry_report_ing_time)
+    # print('')
+    #
+    # print("--Inner--")
+    # inner_ip_header_src = socket.inet_ntoa(inner_ip_header[12:16])
+    # inner_ip_header_dst = socket.inet_ntoa(inner_ip_header[16:20])
+    # print('inner IP4 src address: ', inner_ip_header_src)
+    # print('inner IP4 dst address: ', inner_ip_header_dst)
+    #
+    # inner_L4_src = struct.unpack('!H', inner_L4_header[0:2])[0]
+    # inner_L4_dst = struct.unpack('!H', inner_L4_header[2:4])[0]
+    # print("inner L4 src port:", inner_L4_src)
+    # print("inner L4 dst port:", inner_L4_dst)
+    # print('')
+    #
+    # print('--INT SHIM--')
+    # # Not working..
+    # #int_shim_type = struct.unpack('!H', bytes([int_shim[0], 0][0]))
+    # #print('int shim type:', int_shim_type)
+    # print('')
+    #
+    # #print(os.listdir('/sys/class/net/'))
+    # print('--INT Meta Header--')
+    # print(f"Ver: {Ver}")
+    # print(f"Rep: {Rep}")
+    # print(f"c: {c}")
+    # print(f"e: {e}")
+    # print(f"m: {m}")
+    # #print(f"rsvd2: {rsvd2}")
+    # print(f"hop_metadata_len: {hop_metadata_len}")
+    # print(f"remaining_hop_cnt: {remaining_hop_cnt}")
+    # print(f"instruction_mask_0003: {instruction_mask_0003}")
+    # print(f"instruction_mask_0407: {instruction_mask_0407}")
+    # print(f"instruction_mask_0811: {instruction_mask_0811}")
+    # print(f"instruction_mask_1215: {instruction_mask_1215}")
+    # #print(f"rsvd: {rsvd}")
+    # #print("Reserved:", int_reserved2)
+    # print('------------')
+    # print('')
+    # print('')
+    # sys.stdout.flush()
+    if instruction_mask_0003 == 10:
+        for i in range(0,hop_metadata_len):
+            #print(i)
+            offset1 = i*7
+            offset2 = (i + 1)*7
+            meta_data = packet_data[INT_META_DATA_OFFSET+(i*8):INT_META_DATA_OFFSET+8+(i*8)]
+            sw_id = struct.unpack('!I', meta_data[:4])[0]
+            hop_latency = struct.unpack('!I', meta_data[-4:])[0]
+            print('sw_id: ', sw_id, 'hop_latency: ', hop_latency)
+            send_data(sw_id, hop_latency)
 
-    print('Packet:')
-    print('')
-    print("--Outer--")
-    outer_ip_header_src = socket.inet_ntoa(outer_ip_header[12:16])
-    outer_ip_header_dst = socket.inet_ntoa(outer_ip_header[16:20])
-    print('IP4 src address: ', outer_ip_header_src)
-    print('IP4 dst address: ', outer_ip_header_dst)
-
-    print("L4 src port:", outer_L4_src)
-    print("L4 dst port:", outer_L4_dst)
-    print('')
-
-    print("--Telemetry Report--")
-    telemetry_report_sw_id = struct.unpack('!i', telemetry_report[4:8])[0]
-    telemetry_report_sq_number = struct.unpack('!i', telemetry_report[8:12])[0]
-    telemetry_report_ing_time = struct.unpack('!i', telemetry_report[12:16])[0]
-    print("sw id: ", telemetry_report_sw_id)
-    print("sequence number: ", telemetry_report_sq_number)
-    print("Ingress timestamp: ", telemetry_report_ing_time)
-    print('')
-
-    print("--Inner--")
-    inner_ip_header_src = socket.inet_ntoa(inner_ip_header[12:16])
-    inner_ip_header_dst = socket.inet_ntoa(inner_ip_header[16:20])
-    print('inner IP4 src address: ', inner_ip_header_src)
-    print('inner IP4 dst address: ', inner_ip_header_dst)
-
-    inner_L4_src = struct.unpack('!H', inner_L4_header[0:2])[0]
-    inner_L4_dst = struct.unpack('!H', inner_L4_header[2:4])[0]
-    print("inner L4 src port:", inner_L4_src)
-    print("inner L4 dst port:", inner_L4_dst)
-    print('')
-
-    print('--INT SHIM--')
-    # Not working..
-    #int_shim_type = struct.unpack('!H', bytes([int_shim[0], 0][0]))
-    #print('int shim type:', int_shim_type)
-    print('')
-
-    #print(os.listdir('/sys/class/net/'))
-    print('--INT Meta Header--')
-    print(f"Ver: {Ver}")
-    print(f"Rep: {Rep}")
-    print(f"c: {c}")
-    print(f"e: {e}")
-    print(f"m: {m}")
-    #print(f"rsvd2: {rsvd2}")
-    print(f"hop_metadata_len: {hop_metadata_len}")
-    print(f"remaining_hop_cnt: {remaining_hop_cnt}")
-    print(f"instruction_mask_0003: {instruction_mask_0003}")
-    print(f"instruction_mask_0407: {instruction_mask_0407}")
-    print(f"instruction_mask_0811: {instruction_mask_0811}")
-    print(f"instruction_mask_1215: {instruction_mask_1215}")
-    #print(f"rsvd: {rsvd}")
-    #print("Reserved:", int_reserved2)
-    print('------------')
-    print('')
-    print('')
-    #print('outer ip_len: ', outer_ip_len)
-    #print('inner ip_len: ', inner_ip_len)
-
-
-
-
-
-
-
-
-
-
-## Capture and process packets
-# y = 1
-# x = 1
-# while True:
-#     # Receive a packet - MTU of Ethernet is 1500, hence the packet_data size limit.
-#     packet_data, addr = raw_socket.recvfrom(1500)
-#
-#     print("Packet:")
-#     print(packet_data)
-#
-#     # Extract the Ethernet header (14 bytes)
-#     ethernet_header = packet_data[:14]
-#
-#     # Extract and analyze specific fields from the Ethernet header
-#     # formatted as a zero-padded two-digit lowercase hexadecimal number {:02x}
-#     #destination_mac = ":".join("{:02x}".format(byte) for byte in ethernet_header[0:6])
-#     #source_mac = ":".join("{:02x}".format(byte) for byte in ethernet_header[6:12])
-#     #ethertype = ethernet_header[12:14].hex()
-#
-#     # Check if EtherType indicates an IP packet (0x0800)
-#     if ethertype == '0800':
-#         # Extract the IP header (20 bytes)
-#         ip_header = packet_data[14:34]
-#
-#         # Extract and analyze specific fields from the IP header
-#         version = ip_header[0] >> 4
-#         ihl = (ip_header[0] & 0x0F) * 4
-#         ttl = ip_header[8]
-#         protocol = ip_header[9]
-#         source_ip = socket.inet_ntoa(ip_header[12:16])
-#         destination_ip = socket.inet_ntoa(ip_header[16:20])
-#
-#         # ICMP
-#         # testing only
-#         if protocol == ICMP_PROTO and destination_ip == '1.1.1.1':
-#                 print(y)
-#                 y = y + 1
-#
-#         if protocol == TCP_PROTO
-#
-#         # UDP
-#         if protocol == UDP_PROTO:
-#             # Extract the UDP header (8 bytes)
-#             udp_header = packet_data[34:42]
-#
-#             # Extract and analyze specific fields from the UDP header
-#             source_port, destination_port, length, checksum = \
-#                 struct.unpack('!HHHH', udp_header)
-#
-#             # Print the extracted UDP header information
-#             # Print the extracted IP header information
-#             # print("Destination MAC:", destination_mac)
-#             # print("Source MAC:", source_mac)
-#             # print("EtherType:", ethertype)
-#             # print("Version:", version)
-#             # print("IHL:", ihl)
-#             # print("TTL:", ttl)
-#             # print("Protocol:", protocol)
-#             # print("Source IP:", source_ip)
-#             # print("Destination IP:", destination_ip)
-#             # print("Protocol: UDP")
-#             # print("Source Port:", source_port)
-#             # if destination_port != INT_tbd:
-#             #     print("Destination Port:", destination_port)
-#             # else:
-#             #     print("INT_tbd detected!", INT_tbd)
-#             #     print("INT report included after UDP header")
-#             #
-#             # print("Length:", length)
-#             # print("Checksum:", checksum)
-#
-#             # Packet counter
-#             # print("packet number: "+ str(x))
-#             # x=x+1
-#             # print("------------------------")
+close()
