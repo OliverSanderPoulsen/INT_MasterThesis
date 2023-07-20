@@ -47,16 +47,17 @@ control IngressImpl(inout headers_t hdr,
         // We use this to indicate the processing stage at current switch
         // (using local metadata) to be first hop (important for source INT
         // header setting), or last hop
-        int_ingress.apply(hdr, meta, standard_metadata);
 
 
-        // Because we already decided where to send the packet, we can also know
-        // if the switch is last hop. We only clone the INT packets
-        if(hdr.int_shim.isValid() &&
-            hdr.int_meta.isValid() && meta.int_metadata.last_hop == 1) {
-            clone(CloneType.I2E, REPORT_MIRROR_SESSION_ID);
-            // Consider that cloned packets have a predefined output port that
-            // you insert with a command (mirroring_add)
+        // If the packet received does not contain int, clone it to egress.
+        if(!(hdr.int_shim.isValid()) && !(hdr.int_meta.isValid())) {
+          clone(CloneType.I2E, REPORT_MIRROR_SESSION_ID);
+          // Consider that cloned packets have a predefined output port that
+          // you insert with a command (mirroring_add)
+
+          // In postcard (int-xd) int_ingress only sets the ingress timestamp
+          // Might not be nessacary
+          int_ingress.apply(hdr, meta, standard_metadata);
         }
 
     }

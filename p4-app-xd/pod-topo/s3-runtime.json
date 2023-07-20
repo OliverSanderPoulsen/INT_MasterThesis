@@ -16,15 +16,6 @@
       }
     },
     {
-      "table": "EgressImpl.int_egress.int_transit.tb_int_transit",
-      "match": { },
-      "action_name": "EgressImpl.int_egress.int_transit.int_transit_params",
-      "action_params": {
-        "switch_id": 3,
-        "l3_mtu": 1500
-      }
-    },
-    {
       "table": "EgressImpl.int_egress.int_report.tb_generate_report",
       "match": {
         "standard_metadata.instance_type": 1
@@ -39,22 +30,6 @@
       }
     },
     {
-      "table": "IngressImpl.int_ingress.tb_set_first_hop",
-      "match": {
-        "standard_metadata.ingress_port": 1
-      },
-      "action_name": "IngressImpl.int_ingress.int_set_first_hop",
-      "action_params": {}
-    },
-    {
-      "table": "IngressImpl.int_ingress.tb_set_last_hop",
-      "match": {
-        "standard_metadata.egress_spec": 1
-      },
-      "action_name": "IngressImpl.int_ingress.int_set_last_hop",
-      "action_params": {}
-    },
-    {
       "table": "IngressImpl.table0_control.table0",
       "match": {
         "hdr.ipv4.dstAddr": ["10.0.3.3", 4294967295]
@@ -65,16 +40,6 @@
         "dstAddr": "00:00:00:00:03:03",
         "port": 1
       }
-    },
-    {
-      "table": "IngressImpl.int_ingress.tb_monitor_flow",
-      "match": {
-        "hdr.ipv4.srcAddr": ["10.0.1.1", 4294967295],
-        "hdr.udp.dstPort": [4444, 65535]
-      },
-      "priority" : 2,
-      "action_name": "IngressImpl.int_ingress.int_monitor_flow",
-      "action_params": {}
     },
     {
       "table": "IngressImpl.table0_control.table0",
