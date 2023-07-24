@@ -50,14 +50,14 @@ control IngressImpl(inout headers_t hdr,
 
 
         // If the packet received does not contain int, clone it to egress.
-        if(!(hdr.int_shim.isValid()) && !(hdr.int_meta.isValid())) {
-          clone(CloneType.I2E, REPORT_MIRROR_SESSION_ID);
-          // Consider that cloned packets have a predefined output port that
-          // you insert with a command (mirroring_add)
-
+        if(!(hdr.int_shim.isValid())) {
           // In postcard (int-xd) int_ingress only sets the ingress timestamp
           // Might not be nessacary
           int_ingress.apply(hdr, meta, standard_metadata);
+
+          clone(CloneType.I2E, REPORT_MIRROR_SESSION_ID);
+          // Consider that cloned packets have a predefined output port that
+          // you insert with a command (mirroring_add)
         }
 
     }
