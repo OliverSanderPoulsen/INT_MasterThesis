@@ -194,25 +194,22 @@ while True:
     inner_L4_header = packet_data[INNER_L4_HEADER_OFFSET:INNER_L4_HEADER_OFFSET+INNER_L4_HEADER_LENGTH]
 
     OG_payload_size = inner_ip_len - IP_HEADER_LENGTH - INNER_L4_HEADER_LENGTH
-    #print('inner ip len:', inner_ip_len)
-    #print('payload:', OG_payload_size)
+
 
     OG_payload_AND_INT_size = outer_ip_len - IP_HEADER_LENGTH - OUTER_L4_HEADER_LENGTH - TELEMETRY_REPORT_LENGTH - ETHERNET_HEADER_LENGTH - IP_HEADER_LENGTH - INNER_L4_HEADER_LENGTH
 
-    #print('outer payload size', OG_payload_AND_INT_size)
+
 
     # INT SHIM
     INT_SHIM_OFFSET = INNER_L4_HEADER_OFFSET + L4_VARIABLE_LEN(inner_L4_PROTO)
-    #print(INT_SHIM_OFFSET)
+
     int_shim = packet_data[INT_SHIM_OFFSET:INT_SHIM_OFFSET+INT_SHIM_LENGTH]
 
     #INT META HEADER
     INT_META_OFFSET = INT_SHIM_OFFSET + INT_SHIM_LENGTH
     int_meta_header =  packet_data[INT_META_OFFSET: INT_META_OFFSET+INT_META_LENGTH]
-    #print(INT_META_OFFSET)
 
     INT_META_DATA_OFFSET = INT_META_OFFSET+INT_META_LENGTH
-    #print(INT_META_DATA_OFFSET)
 
     # INT meta header variables
     # done with chatgpt
