@@ -211,9 +211,11 @@ control Int_source_sink(inout headers_t hdr,
     }
 
     apply {
+        if (standard_metadata.instance_type == PKT_INSTANCE_TYPE_INGRESS_CLONE){
             // Add INT header to pkt copy
             tb_int_first_hop.apply();
         }
+    }
 }
 
 // Is this used?
@@ -533,79 +535,36 @@ control Int_transit(inout headers_t hdr,
 
     Int_metadata_insert() int_metadata_insert;
 
-    action int_hop_cnt_exceeded() {
-        hdr.int_meta.e = 1;
-    }
+    // action int_transit_params(bit<32> switch_id, bit<16> l3_mtu) {
+    //     meta.int_metadata.switch_id = switch_id;
+    //     // say hml is 2, then 2 << 2 means multiplying 2 by 4 times. (bit shifting)
+    //     // total 8 bytes which makes sense since each hop can insert 4 or 8 bytes
+    //     meta.int_metadata.insert_byte_cnt =
+    //         (bit<16>) hdr.int_meta.hop_metadata_len << 2;
+    //
+    //     meta.int_metadata.int_data_len =
+    //         (bit<8>) hdr.int_meta.hop_metadata_len;
+    //
+    //     meta.fwd_metadata.l3_mtu = l3_mtu;
+    // }
 
-    action int_transit_params(bit<32> switch_id, bit<16> l3_mtu) {
-        meta.int_metadata.switch_id = switch_id;
-        // say hml is 2, then 2 << 2 means multiplying 2 by 4 times. (bit shifting)
-        // total 8 bytes which makes sense since each hop can insert 4 or 8 bytes
-        meta.int_metadata.insert_byte_cnt =
-            (bit<16>) hdr.int_meta.hop_metadata_len << 2;
-
-        meta.int_metadata.int_data_len =
-            (bit<8>) hdr.int_meta.hop_metadata_len;
-
-        meta.fwd_metadata.l3_mtu = l3_mtu;
-    }
-
-    action int_mtu_limit_hit() {
-        hdr.int_meta.m = 1;
-    }
-
-    action int_hop_cnt_decrement() {
-        hdr.int_meta.remaining_hop_cnt =
-            hdr.int_meta.remaining_hop_cnt - 1;
-    }
-
-    action int_update_outer_encap()
-    {
-        //INT shim and meta length was already added either in this switch as
-        //being source switch before or the first switch in the path added it
-
-        hdr.ipv4.totalLen = hdr.ipv4.totalLen + meta.int_metadata.insert_byte_cnt;
-        hdr.udp.length_ = hdr.udp.length_ + meta.int_metadata.insert_byte_cnt;
-        //INT shim len = INT shim header length + INt metadata header length +
-        //INT stack length (defined by field in metadata header).
-        hdr.int_shim.len = hdr.int_shim.len + meta.int_metadata.int_data_len;
-    }
-
-    table tb_int_transit {
-        key = {}
-        actions = {
-            int_transit_params;
-        }
-    }
+    // Not used. Kept the code as the table is filled in by the controller through table0
+    // table tb_int_transit {
+    //     key = {}
+    //     actions = {
+    //         //int_transit_params;
+    //     }
+    // }
 
     apply {
-        // Add INT metadata, after header validation.
-        if (hdr.int_meta.remaining_hop_cnt == 0) {
-            // Remaining hop count exceeds. Set e bit and do not add metadata.
-            int_hop_cnt_exceeded();
-        } else if ((hdr.int_meta.instruction_mask_0811 ++
-                    hdr.int_meta.instruction_mask_1215)
-                    & 8w0xFE == 0 ) {
-            /* v1.0 spec allows two options for handling unsupported
-            * INT instructions. This exmple code skips the entire
-            * hop if any unsupported bit (bit 8 to 14 in v1.0 spec) is set.
-            * EDER: Right so bits 8 to 14, that is why & 8w0xFE.
-            * But then what about the 15th bit? Need to check the standard.
-            */
-            tb_int_transit.apply();
-
-            // check MTU limit
-            if (hdr.ipv4.totalLen + meta.int_metadata.insert_byte_cnt
-                > meta.fwd_metadata.l3_mtu) {
-                // MTU limit will exceed. Set m bit and do not add INT metadata.
-                int_mtu_limit_hit();
-            } else if(hdr.int_meta.isValid()){
-                // Add INT metadata and update INT shim header and outer headers.
-                int_hop_cnt_decrement();
-                int_metadata_insert.apply(hdr, meta, standard_metadata);
-                int_update_outer_encap();
+        // Calling a different block, so might be redundant.
+        // The block called is for updating INT, which should not be required as it is postcard mode.
+        if(hdr.int_meta.isValid()){
+          // Add INT metadata and update INT shim header and outer headers.
+          //int_hop_cnt_decrement();
+          int_metadata_insert.apply(hdr, meta, standard_metadata);
+          //int_update_outer_encap();
             }
-        }
     }
 }
 
@@ -637,8 +596,9 @@ control Int_egress(inout headers_t   hdr,
             int_source_sink.apply(hdr, meta, standard_metadata);
 
             // Insert int based on instructions
-            int_transit.apply(hdr, meta, standard_metadata);
-
+            if (hdr.int_meta.isValid()) {
+                int_transit.apply(hdr, meta, standard_metadata);
+            }
             // Send int report
             int_report.apply(hdr, meta, standard_metadata);
         }

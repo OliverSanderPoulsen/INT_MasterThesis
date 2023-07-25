@@ -11,21 +11,20 @@
       "priority" : 2,
       "action_name": "IngressImpl.table0_control.set_egress_port",
       "action_params": {
-        "dstAddr": "00:00:00:01:02:00",
-        "port": 2
+        "dstAddr": "00:00:00:00:01:01",
+        "port": 1
       }
     },
     {
       "table": "IngressImpl.table0_control.table0",
       "match": {
-        "hdr.ethernet.etherType": [2048, 65535],
         "hdr.ipv4.dstAddr": ["10.0.2.2", 4294967295]
       },
       "priority" : 2,
       "action_name": "IngressImpl.table0_control.set_egress_port",
       "action_params": {
-        "dstAddr": "00:00:00:00:02:02",
-        "port": 1
+        "dstAddr": "00:00:00:02:01:00",
+        "port": 2
       }
     },
     {
@@ -36,7 +35,7 @@
       "priority" : 2,
       "action_name": "IngressImpl.table0_control.set_egress_port",
       "action_params": {
-        "dstAddr": "00:00:00:03:02:00",
+        "dstAddr": "00:00:00:03:01:00",
         "port": 3
       }
     },
@@ -48,7 +47,7 @@
       "priority" : 2,
       "action_name": "IngressImpl.table0_control.set_egress_port",
       "action_params": {
-        "dstAddr": "00:00:00:03:02:00",
+        "dstAddr": "00:00:00:03:01:00",
         "port": 3
       }
     },
@@ -77,24 +76,15 @@
       }
     },
     {
-      "table": "EgressImpl.int_egress.int_transit.tb_int_transit",
-      "match": { },
-      "action_name": "EgressImpl.int_egress.int_transit.int_transit_params",
-      "action_params": {
-        "switch_id": 2,
-        "l3_mtu": 1500
-      }
-    },
-    {
       "table": "EgressImpl.int_egress.int_report.tb_generate_report",
       "match": {
         "standard_metadata.instance_type": 1
       },
       "action_name": "EgressImpl.int_egress.int_report.create_int_report",
       "action_params": {
-        "src_mac": "00:00:00:02:00:00",
+        "src_mac": "00:00:00:01:00:00",
         "mon_server_mac": "00:00:00:00:22:32",
-        "src_ip": "10.0.2.254",
+        "src_ip": "10.0.1.254",
         "mon_server_ip": "10.0.223.2",
         "mon_server_port": 12345
       }

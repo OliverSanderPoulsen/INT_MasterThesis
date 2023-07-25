@@ -16,15 +16,6 @@
       }
     },
     {
-      "table": "EgressImpl.int_egress.int_transit.tb_int_transit",
-      "match": { },
-      "action_name": "EgressImpl.int_egress.int_transit.int_transit_params",
-      "action_params": {
-        "switch_id": 3,
-        "l3_mtu": 1500
-      }
-    },
-    {
       "table": "EgressImpl.int_egress.int_report.tb_generate_report",
       "match": {
         "standard_metadata.instance_type": 1
