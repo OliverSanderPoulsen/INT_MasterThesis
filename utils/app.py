@@ -62,7 +62,7 @@ class Rules():
     print('Installed P4 program using SetForwardingPipelineConfig on s1')
     print('------------------')
     print('')
-    
+
     controller_functions.clearAllRules(p4info_helper, s1)
 
 

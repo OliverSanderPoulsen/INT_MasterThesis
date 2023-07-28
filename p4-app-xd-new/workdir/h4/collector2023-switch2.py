@@ -11,7 +11,8 @@ from datetime import datetime, timedelta
 
 # Create a raw socket
 raw_socket = socket.socket(socket.AF_PACKET, socket.SOCK_RAW, socket.ntohs(3))
-interface = 's3-eth2'
+interface = 's2-eth3'
+# interface = 's1-eth3'
 
 raw_socket.bind((interface ,0))
 
@@ -287,10 +288,12 @@ while True:
     # print(f"instruction_mask_1215: {instruction_mask_1215}")
     # #print(f"rsvd: {rsvd}")
     # #print("Reserved:", int_reserved2)
+    # print('')
+    # print("Int offset: ", INT_META_DATA_OFFSET)
     # print('------------')
     # print('')
     # print('')
-    # sys.stdout.flush()
+    sys.stdout.flush()
     if instruction_mask_0003 == 10:
         for i in range(0,hop_metadata_len):
             #print(i)

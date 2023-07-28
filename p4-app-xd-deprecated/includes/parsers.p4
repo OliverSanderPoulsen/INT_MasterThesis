@@ -60,14 +60,15 @@ parser ParserImpl(packet_in packet,
         packet.extract(hdr.int_meta);
         /*If we cannot extract varbit, then ..*/
         /*What about the array of INT data? Like in the source routing example?*/
-        transition parse_int_metadata_stack;
-    }
-
-    state parse_int_metadata_stack { //P4apps, Joghwan
-        // Parse INT metadata, not INT header and INT shim header (length in bits)
-        packet.extract(hdr.int_metadata_stack, (bit<32>) ((hdr.int_shim.len - 3) << 5));
+        //transition parse_int_metadata_stack;
         transition accept;
     }
+
+    // state parse_int_metadata_stack { //P4apps, Joghwan
+    //     // Parse INT metadata, not INT header and INT shim header (length in bits)
+    //     packet.extract(hdr.int_metadata_stack, (bit<32>) ((hdr.int_shim.len - 3) << 5));
+    //     transition accept;
+    // }
 
 }
 

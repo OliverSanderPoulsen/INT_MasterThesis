@@ -1,0 +1,5 @@
+Obtaining JSON from switch...
+Done
+Control utility for runtime P4 table manipulation
+RuntimeCmd: RuntimeCmd: Error: Table IngressImpl.int_ingress.tb_set_first_hop has no action IngressImpl.int_ingress.int_set_first_hop
+RuntimeCmd: 

@@ -4,15 +4,17 @@ from influxdb_client.client.write_api import SYNCHRONOUS
 from random import randint
 from datetime import datetime, timedelta
 
-# Replace the placeholders with your InfluxDB connection details
+# InfluxDB connection details
 url = "http://localhost:8086"
 token = 'VyLD3TDJ7uhpkQSP-H3xCwrTu0spYCKIQpeXFyZIx7edaMSLurW4PFphFnTcXp7wEkFOA80rAJTJWPyZtHbQPQ=='
 org = "DTU"
 bucket = 'DummyData'
 
+# Client setup
 client = InfluxDBClient(url=url, token=token, org=org)
 write_api = client.write_api(write_options=SYNCHRONOUS)
 
+# Generate dummy points for tag 1 and tag 2
 def generate_dummy_data():
     point = Point("dummy_measurement") \
         .tag("tag1", "value1") \
@@ -23,7 +25,7 @@ def generate_dummy_data():
 
     return point
 
-
+# Continue to send dummy data to the InfluxDB bucket
 while True:
     data_point = generate_dummy_data()
 

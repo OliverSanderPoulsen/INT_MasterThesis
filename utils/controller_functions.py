@@ -83,6 +83,3 @@ def readTableRules(p4info_helper, sw):
     for response in sw.ReadTableEntries():
         for entity in response.entities:
             entry = entity.table_entry
-
-            # TOOD:
-            # use the p4info_helper to translate the IDs in the entry to names

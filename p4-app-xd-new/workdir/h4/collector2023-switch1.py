@@ -11,8 +11,8 @@ from datetime import datetime, timedelta
 
 # Create a raw socket
 raw_socket = socket.socket(socket.AF_PACKET, socket.SOCK_RAW, socket.ntohs(3))
-interface = 's2-eth3'
-# interface = 's1-eth3'
+#interface = 's2-eth3'
+interface = 's1-eth3'
 
 raw_socket.bind((interface ,0))
 

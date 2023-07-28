@@ -1,0 +1,6 @@
+● grafana-server.service - Grafana instance
+     Loaded: loaded (/lib/systemd/system/grafana-server.service; disabled; vendor preset: enabled)
+     Active: inactive (dead)
+       Docs: http://docs.grafana.org
+
+Jul 25 09:44:58 p4 systemd[1]: [0;1;38;5;185m[0;1;39m[0;1;38;5;185m/lib/systemd/system/grafana-server.service:42: Unknown key name 'ProtectProc' in section 'Service', ignoring.[0m
