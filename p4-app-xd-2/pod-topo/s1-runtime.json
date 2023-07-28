@@ -69,7 +69,7 @@
       "action_name": "EgressImpl.int_egress.int_source_sink.int_first_hop",
       "action_params": {
         "remaining_hop_cnt": 50,
-        "hop_metadata_len": 2,
+        "hop_metadata_len": 1,
         "ins_mask0003": 10,
         "ins_mask0407": 0,
         "ins_mask1215": 0
